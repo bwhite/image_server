@@ -12,7 +12,7 @@ class main(object):
     def GET(self):
         image_extensions = set(['jpg', 'png', 'jpeg', 'gif', 'ico'])
         extension = lambda x: x.split('.')[-1] if '.' in x else ''
-        local_images = [(x, x) for x in os.listdir('.') if extension(x) in image_extensions]
+        local_images = [(x, x) for x in sorted(os.listdir('.')) if extension(x) in image_extensions]
         web.header("Content-Type", 'text/html')
         render = web.template.frender(os.path.dirname(__file__) + '/image_serve_template.html')
         return render(local_images)
@@ -32,9 +32,9 @@ class images:
             width = int(width * 50 / float(height))
             img = img.resize((width, 50))
             fp = StringIO.StringIO()
-            img.save(fp, extension)
+            img.save(fp, extension if extension != 'jpg' else 'jpeg')
             fp.seek(0)
-            return fp.read()#open(file_name, 'rb').read()#fp.read()
+            return fp.read()
         else:
             raise web.notfound()
 

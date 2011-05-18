@@ -1,0 +1,7 @@
+Brandyn A. White <bwhite@dappervision.com>
+
+Requires: PIL and web.py
+
+Usage:
+- Go into a directory with lots of images
+- python -m image_server <port>

@@ -2,8 +2,8 @@ $def with (images)
 <html>
 <body>
 <table>
-$for x, y in images:
-    <tr><td><img src="$x" height=50/></td><td>$y</td></tr>
+$for x in images:
+    <tr><td><a href="/i/$x" target="_blank"><img src="/t/$x" height=50/></a></td><td>$x</td></tr>
 </table>
 </body>
 </html>

@@ -5,6 +5,7 @@ import Image
 import argparse
 import shutil
 import sys
+import random
 
 urls = ('/', 'main',
 
@@ -25,10 +26,16 @@ class main(object):
         extension = lambda x: x.split('.')[-1] if '.' in x else ''
         local_images = [x for x in sorted(os.listdir(ARGS.imagedir))
                         if extension(x) in image_extensions]
+        total = len(local_images)
+        if ARGS.random:
+            local_images = random.sample(local_images, min(ARGS.limit,
+                                                           len(local_images)))
+        else:
+            local_images = local_images[:ARGS.limit]
         web.header("Content-Type", 'text/html')
         render = web.template.frender(os.path.dirname(__file__) +
                                       '/image_serve_template.html')
-        return render(ARGS, local_images)
+        return render(ARGS, local_images, total)
 
 
 class move(object):
@@ -110,9 +117,12 @@ if __name__ == "__main__":
 
     # Limit number of images to display
     parser.add_argument('--limit', type=int,
-                        help='show at most LIMIT images (0 for all images, \
-                        default 200)',
+                        help='show at most LIMIT images (default 200)',
                         default=200)
+
+    # Randomize each time
+    parser.add_argument('--random', action='store_true',
+                        help='randomly sample images in the folder each time')
 
     # These args are used as global variables
     ARGS = parser.parse_args()

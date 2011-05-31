@@ -1,4 +1,4 @@
-$def with (ARGS, images)
+$def with (ARGS, images, total)
 
   <html>
   <head>
@@ -6,7 +6,7 @@ $def with (ARGS, images)
   </head>
   <body>
   <table>
-    Showing $(len(images[:ARGS.limit])) images ($(len(images)) total)
+    Showing $(len(images))) images ($(len(images)) total)
 
     $for x in images[:ARGS.limit]:
       <tr>

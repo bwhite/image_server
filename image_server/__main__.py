@@ -5,18 +5,22 @@ import cStringIO as StringIO
 import Image
 
 urls = ('/', 'main',
+        '/p/(\d+)', 'main',
         '/i/(.*)\.(png|jpg|gif|ico)', 'images', #this is where the image folder is located....
         '/t/(.*)\.(png|jpg|gif|ico)', 'thumb_images' #this is where the image folder is located....
         )
 
 class main(object):
-    def GET(self):
+    def GET(self, page=0):
+        num_per_page = 50
+        page = int(page)
         image_extensions = set(['jpg', 'png', 'jpeg', 'gif', 'ico'])
         extension = lambda x: x.split('.')[-1] if '.' in x else ''
         local_images = [x for x in sorted(os.listdir('.')) if extension(x) in image_extensions]
+        local_images = local_images[num_per_page * page:num_per_page * (page + 1)]
         web.header("Content-Type", 'text/html')
         render = web.template.frender(os.path.dirname(__file__) + '/image_serve_template.html')
-        return render(local_images)
+        return render(local_images, str(page - 1), str(page + 1))
 
 class images(object):
     def GET(self, name, extension):

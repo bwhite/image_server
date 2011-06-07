@@ -1,9 +1,14 @@
-$def with (images)
+$def with (images, prev_page_num, next_page_num)
 <html>
+<head>
+<script type="text/javascript" src="http://gettopup.com/releases/latest/top_up-min.js"></script>
+</head>
 <body>
+<a href="/p/$prev_page_num">Prev</a><br>
+<a href="/p/$next_page_num">Next</a><br>
 <table>
 $for x in images:
-    <tr><td><a href="/i/$x" target="_blank"><img src="/t/$x" height=50/></a></td><td>$x</td></tr>
+    <tr><td><a href="/i/$x" class="top_up"><img src="/t/$x" height=100/></a></td><td>$x</td></tr>
 </table>
 </body>
 </html>

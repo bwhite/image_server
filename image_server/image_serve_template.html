@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 $def with (images, prev_page_num, next_page_num)
 <html>
 <head>
@@ -12,3 +13,49 @@ $for x in images:
 </table>
 </body>
 </html>
+=======
+$def with (ARGS, images, total)
+
+  <html>
+  <head>
+    <script type="text/javascript" src="http://gettopup.com/releases/latest/top_up-min.js"></script>
+  </head>
+  <body>
+  <table>
+    Showing $(len(images))) images ($(len(images)) total)
+
+    $for x in images[:ARGS.limit]:
+      <tr>
+	<td><a href="/i/$x" class="top_up" target="_blank">
+	    <img src="/t/$x" style="height:50;max-width:100"/></a></td>
+	$if not ARGS.movedir is None:
+   	  <td>
+	    <input IMG="$x" 
+		   class="move_button" style="height:30" type="submit" 
+		   value="Move to $(ARGS.movedir)">
+	  </td>
+	<td>$x</td>
+      </tr>
+  </table>
+  
+  <script type="text/javascript">
+    // Use jQuery to handle moving images
+    $$("input.move_button").click(function () {
+	var td = this
+	var url = '/move/' + $$(this).attr('IMG');
+	$$.ajax({
+	    url: url,
+	    type: "POST",
+	    success: function(data) { 
+		$$(td).closest('tr').hide()
+	    },
+	    error: function (data) {
+		console.error(data.responseText);
+	    }
+	})
+    })
+  </script>
+
+  </body>
+  </html>
+>>>>>>> edb87f3fca5a7c5f8c60821227a7e88356d32ad2

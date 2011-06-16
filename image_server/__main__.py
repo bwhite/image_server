@@ -33,10 +33,12 @@ class main(object):
                                                            len(local_images)))
         else:
             local_images = local_images[ARGS.limit * page:ARGS.limit * (page + 1)]
-            local_images = local_images[:ARGS.limit]
         web.header("Content-Type", 'text/html')
-        render = web.template.frender(os.path.dirname(__file__) +
-                                      '/image_serve_template.html')
+        try:
+            render = web.template.frender(os.path.dirname(__file__) +
+                                          '/image_serve_template.html')
+        except IOError:
+            render = web.template.frender('image_serve_template.html')
         return render(ARGS, local_images, total, str(page - 1), str(page + 1))
 
 

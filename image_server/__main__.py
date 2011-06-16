@@ -8,12 +8,7 @@ import sys
 import random
 
 urls = ('/', 'main',
-<<<<<<< HEAD
         '/p/(\d+)', 'main',
-        '/i/(.*)\.(png|jpg|gif|ico)', 'images', #this is where the image folder is located....
-        '/t/(.*)\.(png|jpg|gif|ico)', 'thumb_images' #this is where the image folder is located....
-=======
-
         # POST to move the images
         '/move/(.*)', 'move',
 
@@ -22,23 +17,14 @@ urls = ('/', 'main',
 
         # this is where the image folder is located....
         '/t/(.*)\.(png|jpg|gif|ico)', 'thumb_images'
->>>>>>> edb87f3fca5a7c5f8c60821227a7e88356d32ad2
         )
 
 
 class main(object):
     def GET(self, page=0):
-        num_per_page = 50
         page = int(page)
         image_extensions = set(['jpg', 'png', 'jpeg', 'gif', 'ico'])
         extension = lambda x: x.split('.')[-1] if '.' in x else ''
-<<<<<<< HEAD
-        local_images = [x for x in sorted(os.listdir('.')) if extension(x) in image_extensions]
-        local_images = local_images[num_per_page * page:num_per_page * (page + 1)]
-        web.header("Content-Type", 'text/html')
-        render = web.template.frender(os.path.dirname(__file__) + '/image_serve_template.html')
-        return render(local_images, str(page - 1), str(page + 1))
-=======
         local_images = [x for x in sorted(os.listdir(ARGS.imagedir))
                         if extension(x) in image_extensions]
         total = len(local_images)
@@ -46,11 +32,12 @@ class main(object):
             local_images = random.sample(local_images, min(ARGS.limit,
                                                            len(local_images)))
         else:
+            local_images = local_images[ARGS.limit * page:ARGS.limit * (page + 1)]
             local_images = local_images[:ARGS.limit]
         web.header("Content-Type", 'text/html')
         render = web.template.frender(os.path.dirname(__file__) +
                                       '/image_serve_template.html')
-        return render(ARGS, local_images, total)
+        return render(ARGS, local_images, total, str(page - 1), str(page + 1))
 
 
 class move(object):
@@ -59,7 +46,6 @@ class move(object):
         # Only accept move posts if the command line argument is set
         if ARGS.movedir is None:
             return web.notfound()
-
         if file_name in os.listdir(ARGS.imagedir):
             # Move the image
             try:
@@ -71,7 +57,6 @@ class move(object):
         else:
             raise web.notfound()
 
->>>>>>> edb87f3fca5a7c5f8c60821227a7e88356d32ad2
 
 class images(object):
     def GET(self, name, extension):
@@ -116,32 +101,25 @@ app = web.application(urls, globals())
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Server a folder of images")
-
     # Webpy port
     parser.add_argument('--port', type=str, help='run webpy on this port',
                         default='8080')
-
     # Image input directory
     parser.add_argument('--imagedir', type=str, help='folder of images, \
                         default \'.\'',
                         default='./')
-
     # Move images to this directory
     parser.add_argument('--movedir', type=str,
                         help='click to move images to this directory',
                         default=None)
-
     # Limit number of images to display
     parser.add_argument('--limit', type=int,
                         help='show at most LIMIT images (default 200)',
                         default=200)
-
     # Randomize each time
     parser.add_argument('--random', action='store_true',
                         help='randomly sample images in the folder each time')
-
     # These args are used as global variables
     ARGS = parser.parse_args()
-
     sys.argv = ['', ARGS.port]
     app.run()

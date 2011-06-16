@@ -1,26 +1,12 @@
-<<<<<<< HEAD
-$def with (images, prev_page_num, next_page_num)
-<html>
-<head>
-<script type="text/javascript" src="http://gettopup.com/releases/latest/top_up-min.js"></script>
-</head>
-<body>
-<a href="/p/$prev_page_num">Prev</a><br>
-<a href="/p/$next_page_num">Next</a><br>
-<table>
-$for x in images:
-    <tr><td><a href="/i/$x" class="top_up"><img src="/t/$x" height=100/></a></td><td>$x</td></tr>
-</table>
-</body>
-</html>
-=======
-$def with (ARGS, images, total)
+$def with (ARGS, images, total, prev_page_num, next_page_num)
 
   <html>
   <head>
     <script type="text/javascript" src="http://gettopup.com/releases/latest/top_up-min.js"></script>
   </head>
   <body>
+  <a href="/p/$prev_page_num">Prev</a><br>
+  <a href="/p/$next_page_num">Next</a><br>
   <table>
     Showing $(len(images))) images ($(len(images)) total)
 
@@ -58,4 +44,3 @@ $def with (ARGS, images, total)
 
   </body>
   </html>
->>>>>>> edb87f3fca5a7c5f8c60821227a7e88356d32ad2

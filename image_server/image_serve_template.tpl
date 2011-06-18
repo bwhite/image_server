@@ -19,7 +19,7 @@
 	  </div>
 	  <div>
 	    %if movedir is not None:
-	        <input IMG="{{x}}" 
+	        <input img="{{x}}" 
 		       class="move_button" style="height:30;" type="submit" 
 		       value="Move">
             %end
@@ -29,8 +29,8 @@
   </div>
   <script type="text/javascript">
 TopUp.addPresets({
-   'img': {
-       effect='hide'
+   '.top_up a': {
+       effect:'hide'
    }
 })
 $(document).ready(function()

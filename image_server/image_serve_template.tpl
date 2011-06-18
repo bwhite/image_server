@@ -6,25 +6,33 @@
     <script type="text/javascript" src="http://craigsworks.com/projects/qtip2/packages/latest/jquery.qtip.js"></script> 
   </head>
   <body>
-  <a href="/p/{{prev_page_num}}">Prev</a><br>
-  <a href="/p/{{next_page_num}}">Next</a><br>
+  <span style="margin:10px;font-size:150%"><a href="/p/{{prev_page_num}}">Prev</a></span>
+  <span style="margin:10px;font-size:150%"><a href="/p/{{next_page_num}}">Next</a></span>
+  <div>
     %for x in images:
-        <div style="float:left;max-width:100px;text-align:center;margin:2px">
-info<br>
-<div>
-	    <a href="/image/i/{{x}}" title="{{x}}" class="top_up" toptions="effect=switch" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
-</div>
-<div>
+        <div style="float:left;max-width:100px;text-align:center;margin:15px 2px">
+          <div>
+            <a title="{{x}}">info1</a>
+          </div>
+	  <div>
+	    <a href="/image/i/{{x}}" class="top_up" toptions="effect=hide" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
+	  </div>
+	  <div>
 	    %if movedir is not None:
 	        <input IMG="{{x}}" 
 		       class="move_button" style="height:30;" type="submit" 
 		       value="Move">
             %end
-</div>
+	  </div>
          </div>
     %end
-  
+  </div>
   <script type="text/javascript">
+TopUp.addPresets({
+   'img': {
+       effect='hide'
+   }
+})
 $(document).ready(function()
 {
 // Match all <A/> links with a title tag and use it as the content (default).

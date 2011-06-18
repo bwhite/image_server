@@ -25,14 +25,14 @@
   
   <script type="text/javascript">
     // Use jQuery to handle moving images
-    $$("input.move_button").click(function () {
+    $("input.move_button").click(function () {
 	var td = this
-	var url = '/move/' + $$(this).attr('IMG');
-	$$.ajax({
+	var url = '/move/' + $(this).attr('IMG');
+	$.ajax({
 	    url: url,
 	    type: "POST",
 	    success: function(data) { 
-		$$(td).closest('tr').hide()
+		$(td).closest('tr').hide()
 	    },
 	    error: function (data) {
 		console.error(data.responseText);

@@ -1,14 +1,16 @@
+
 from gevent import monkey
 monkey.patch_all()
 import bottle
 bottle.debug(True)
-from bottle import route, run, response, template
+from bottle import route, run, response, template, post, abort
 import os
 import argparse
 import random
 import re
 import Image
 import cStringIO as StringIO
+import shutil
 
  
 @route('/')
@@ -50,6 +52,21 @@ def read_images(image_type, image_name_ext):
         else:
             fp = open(image_path)
         return fp.read()
+
+
+@post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
+def move(image_name_ext):
+    print(image_name_ext)
+    if ARGS.movedir is None:
+        abort(401)
+    if image_name_ext in os.listdir(ARGS.imagedir):  # Security
+        image_path = os.path.join(ARGS.imagedir, image_name_ext)
+        try:
+            os.makedirs(ARGS.movedir)
+        except OSError:
+            pass
+        shutil.move(image_path, '%s/%s' % (ARGS.movedir, image_name_ext))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Server a folder of images")

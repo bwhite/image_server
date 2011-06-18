@@ -2,6 +2,7 @@
   <html>
   <head>
     <script type="text/javascript" src="http://gettopup.com/releases/latest/top_up-min.js"></script>
+    <script type="text/javascript" src="http://craigsworks.com/projects/qtip2/packages/latest/jquery.qtip.js"></script> 
   </head>
   <body>
   <a href="/p/{{prev_page_num}}">Prev</a><br>

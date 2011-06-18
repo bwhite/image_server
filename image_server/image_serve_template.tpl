@@ -8,16 +8,21 @@
   <body>
   <a href="/p/{{prev_page_num}}">Prev</a><br>
   <a href="/p/{{next_page_num}}">Next</a><br>
-  <table>
     %for x in images:
-        <div style="float:left;width:100px;">
-	    <a href="/image/i/{{x}}" title="{{x}}" class="top_up" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
-            <br>
-	    %if movedir is not None:
-	        <input IMG="{{x}}" 
-		       class="move_button" style="height:30" type="submit" 
-		       value="Move">
-            %end
+        <div style="float:left;max-width:100px;">
+            <div>
+              <a title="{{x}}">info</a>
+            </div>
+            <div>
+	      <a href="/image/i/{{x}}" class="top_up" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
+            </div>
+            <div>
+	      %if movedir is not None:
+	          <input IMG="{{x}}" 
+		         class="move_button" style="height:30" type="submit" 
+		         value="Move">
+               %end
+            </div>
          </div>
     %end
   

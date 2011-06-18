@@ -1,105 +1,55 @@
-import web
+from gevent import monkey
+monkey.patch_all()
+import bottle
+bottle.debug(True)
+from bottle import route, run, response, template
 import os
-import cStringIO as StringIO
-import Image
 import argparse
-import shutil
-import sys
 import random
+import re
+import Image
+import cStringIO as StringIO
 
-urls = ('/', 'main',
-        '/p/(\d+)', 'main',
-        # POST to move the images
-        '/move/(.*)', 'move',
-
-        # this is where the image folder is located....
-        '/i/(.*)\.(png|jpg|gif|ico)', 'images',
-
-        # this is where the image folder is located....
-        '/t/(.*)\.(png|jpg|gif|ico)', 'thumb_images'
-        )
-
-
-class main(object):
-    def GET(self, page=0):
-        page = int(page)
-        image_extensions = set(['jpg', 'png', 'jpeg', 'gif', 'ico'])
-        extension = lambda x: x.split('.')[-1] if '.' in x else ''
-        local_images = [x for x in sorted(os.listdir(ARGS.imagedir))
-                        if extension(x) in image_extensions]
-        total = len(local_images)
-        if ARGS.random:
-            local_images = random.sample(local_images, min(ARGS.limit,
-                                                           len(local_images)))
-        else:
-            local_images = local_images[ARGS.limit * page:ARGS.limit * (page + 1)]
-        web.header("Content-Type", 'text/html')
-        try:
-            render = web.template.frender(os.path.dirname(__file__) +
-                                          '/image_serve_template.html')
-        except IOError:
-            render = web.template.frender('image_serve_template.html')
-        return render(ARGS, local_images, total, str(page - 1), str(page + 1))
+ 
+@route('/')
+@route('/p/:page#[0-9]*#')
+def main(page=''):
+    if not page:
+        page = '0'
+    page = int(page)
+    image_extensions = set(['jpg', 'png', 'jpeg', 'gif', 'ico'])
+    extension = lambda x: x.split('.')[-1] if '.' in x else ''
+    local_images = [x for x in sorted(os.listdir(ARGS.imagedir), reverse=ARGS.reverse)
+                    if extension(x) in image_extensions]
+    if ARGS.random:
+        local_images = random.sample(local_images, min(ARGS.limit,
+                                                       len(local_images)))
+    else:
+        local_images = local_images[ARGS.limit * page:ARGS.limit * (page + 1)]
+    response.content_type = 'text/html'
+    return template('image_serve_template', images=local_images,
+                    prev_page_num=page - 1, next_page_num=page + 1, movedir=ARGS.movedir)
 
 
-class move(object):
-    def POST(self, file_name):
-        print 'MOVE ', file_name
-        # Only accept move posts if the command line argument is set
-        if ARGS.movedir is None:
-            return web.notfound()
-        if file_name in os.listdir(ARGS.imagedir):
-            # Move the image
-            try:
-                shutil.move(os.path.join(ARGS.imagedir, file_name),
-                            '%s/%s' % (ARGS.movedir, file_name))
-            except Exception, e:
-                print e
-                raise web.internalerror(e)
-        else:
-            raise web.notfound()
-
-
-class images(object):
-    def GET(self, name, extension):
-        cType = {
-            "png":"images/png",
-            "jpg":"image/jpeg",
-            "gif":"image/gif",
-            "ico":"image/x-icon"
-            }
-        file_name = '%s.%s' % (name, extension)
-        if file_name in os.listdir(ARGS.imagedir):  # Security
-            web.header("Content-Type", cType[extension])  # Set the Header
-            return open(os.path.join(ARGS.imagedir, file_name)).read()
-        else:
-            raise web.notfound()
-
-
-class thumb_images(object):
-    def GET(self, name, extension):
-        cType = {
-            "png":"images/png",
-            "jpg":"image/jpeg",
-            "gif":"image/gif",
-            "ico":"image/x-icon"
-            }
-        file_name = '%s.%s' % (name, extension)
-        if file_name in os.listdir(ARGS.imagedir):  # Security
-            web.header("Content-Type", cType[extension])  # Set the Header
-            img = Image.open(os.path.join(ARGS.imagedir, file_name))
+@route('/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
+def read_images(image_type, image_name_ext):
+    cType = {"png": "images/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
+             "gif": "image/gif", "ico": "image/x-icon"}
+    image_name, image_ext = re.search('(.*)\.(png|jpg|gif|ico)', image_name_ext).groups()
+    response.content_type = cType[image_ext]
+    if image_name_ext in os.listdir(ARGS.imagedir):  # Security
+        image_path = os.path.join(ARGS.imagedir, image_name_ext)
+        if image_type == 't':
+            img = Image.open(image_path)
             width, height = img.size
             width = int(width * 50 / float(height))
             img = img.resize((width, 50))
             fp = StringIO.StringIO()
-            img.save(fp, extension if extension != 'jpg' else 'jpeg')
+            img.save(fp, image_ext if image_ext != 'jpg' else 'jpeg')
             fp.seek(0)
-            return fp.read()
         else:
-            raise web.notfound()
-
-
-app = web.application(urls, globals())
+            fp = open(image_path)
+        return fp.read()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Server a folder of images")
@@ -118,10 +68,13 @@ if __name__ == "__main__":
     parser.add_argument('--limit', type=int,
                         help='show at most LIMIT images (default 200)',
                         default=200)
+    # Sort order
+    parser.add_argument('--reverse', type=bool,
+                        help='Reverse the sort',
+                        default=False)
     # Randomize each time
     parser.add_argument('--random', action='store_true',
                         help='randomly sample images in the folder each time')
     # These args are used as global variables
     ARGS = parser.parse_args()
-    sys.argv = ['', ARGS.port]
-    app.run()
+    run(host='0.0.0.0', port=ARGS.port, server='gevent', reloader=True)

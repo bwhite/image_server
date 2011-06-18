@@ -1,27 +1,26 @@
-$def with (ARGS, images, total, prev_page_num, next_page_num)
-
+<!-- images, prev_page_num, next_page_num, move_dir, -->
   <html>
   <head>
     <script type="text/javascript" src="http://gettopup.com/releases/latest/top_up-min.js"></script>
   </head>
   <body>
-  <a href="/p/$prev_page_num">Prev</a><br>
-  <a href="/p/$next_page_num">Next</a><br>
+  <a href="/p/{{prev_page_num}}">Prev</a><br>
+  <a href="/p/{{next_page_num}}">Next</a><br>
   <table>
-    Showing $(len(images))) images ($(len(images)) total)
-
-    $for x in images[:ARGS.limit]:
+    %for x in images:
       <tr>
-	<td><a href="/i/$x" class="top_up" target="_blank">
-	    <img src="/t/$x" style="height:50;max-width:100"/></a></td>
-	$if not ARGS.movedir is None:
+	<td><a href="/image/i/{{x}}" class="top_up" target="_blank">
+	    <img src="/image/t/{{x}}" style="height:50;max-width:100"/></a></td>
+	%if movedir is not None:
    	  <td>
-	    <input IMG="$x" 
+	    <input IMG="{{x}}" 
 		   class="move_button" style="height:30" type="submit" 
-		   value="Move to $(ARGS.movedir)">
+		   value="Move to {{movedir}}">
 	  </td>
-	<td>$x</td>
+        %end
+	<td>{{x}}</td>
       </tr>
+    %end
   </table>
   
   <script type="text/javascript">

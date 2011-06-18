@@ -15,7 +15,7 @@
             <a title="{{x}}">info1</a>
           </div>
 	  <div>
-	    <a href="/image/i/{{x}}" class="top_up" toptions="effect=hide" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
+	    <a href="/image/i/{{x}}" class="top_up" toptions="effect=hide,overlayClose=0" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
 	  </div>
 	  <div>
 	    %if movedir is not None:
@@ -46,7 +46,10 @@ $('a[title]').qtip();
 	    url: url,
 	    type: "POST",
 	    success: function(data) { 
-		$(td).closest('div').hide()
+                var outer = $(td).closest('div').parent()
+                var width = outer.width()
+                outer.empty()
+                outer.width(width)
 	    },
 	    error: function (data) {
 		console.error(data.responseText);

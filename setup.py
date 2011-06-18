@@ -8,4 +8,4 @@ setup(name='image_server',
       author='Brandyn A. White',
       author_email='bwhite@dappervision.com',
       license='GPL',
-      package_data={'image_server':['*.html']})
+      package_data={'image_server':['*.html','*.tpl']})

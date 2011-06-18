@@ -1,4 +1,3 @@
-
 from gevent import monkey
 monkey.patch_all()
 import bottle
@@ -12,7 +11,7 @@ import Image
 import cStringIO as StringIO
 import shutil
 
- 
+bottle.debug(True)
 @route('/')
 @route('/p/:page#[0-9]*#')
 def main(page=''):
@@ -29,7 +28,8 @@ def main(page=''):
     else:
         local_images = local_images[ARGS.limit * page:ARGS.limit * (page + 1)]
     response.content_type = 'text/html'
-    return template('image_serve_template', images=local_images,
+    templ = os.path.join(os.path.dirname(__file__), 'image_serve_template')
+    return template(templ, images=local_images,
                     prev_page_num=page - 1, next_page_num=page + 1, movedir=ARGS.movedir)
 
 

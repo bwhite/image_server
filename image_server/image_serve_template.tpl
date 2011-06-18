@@ -8,20 +8,16 @@
   <a href="/p/{{next_page_num}}">Next</a><br>
   <table>
     %for x in images:
-      <tr>
-	<td><a href="/image/i/{{x}}" class="top_up" target="_blank">
-	    <img src="/image/t/{{x}}" style="height:50;max-width:100"/></a></td>
-	%if movedir is not None:
-   	  <td>
-	    <input IMG="{{x}}" 
-		   class="move_button" style="height:30" type="submit" 
-		   value="Move to {{movedir}}">
-	  </td>
-        %end
-	<td>{{x}}</td>
-      </tr>
+        <div style="float:left;width:100px;">
+	    <a href="/image/i/{{x}}" class="top_up" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
+            <br>
+	    %if movedir is not None:
+	        <input IMG="{{x}}" 
+		       class="move_button" style="height:30" type="submit" 
+		       value="Move">
+            %end
+         </div>
     %end
-  </table>
   
   <script type="text/javascript">
     // Use jQuery to handle moving images
@@ -32,7 +28,7 @@
 	    url: url,
 	    type: "POST",
 	    success: function(data) { 
-		$(td).closest('tr').hide()
+		$(td).closest('div').hide()
 	    },
 	    error: function (data) {
 		console.error(data.responseText);

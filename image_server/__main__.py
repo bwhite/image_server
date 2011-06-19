@@ -1,8 +1,6 @@
 from gevent import monkey
 monkey.patch_all()
 import bottle
-bottle.debug(True)
-from bottle import route, run, response, template, post, abort, request
 import os
 import argparse
 import random
@@ -11,9 +9,9 @@ import Image
 import cStringIO as StringIO
 import shutil
 
-bottle.debug(True)
-@route('/')
-@route('/p/:page#[0-9]*#')
+
+@bottle.route('/')
+@bottle.route('/p/:page#[0-9]*#')
 def main(page=''):
     if not page:
         page = '0'
@@ -27,19 +25,19 @@ def main(page=''):
                                                        len(local_images)))
     else:
         local_images = local_images[ARGS.limit * page:ARGS.limit * (page + 1)]
-    response.content_type = 'text/html'
-    templ = os.path.join(os.path.dirname(__file__), 'image_serve_template')
-    return template(templ, images=local_images,
+    bottle.response.content_type = 'text/html'
+    templ = os.path.join(os.path.dirname(__file__), 'image_serve_bottle.template')
+    return bottle.template(templ, images=local_images,
                     prev_page_num=page - 1, next_page_num=page + 1, movedirs=ARGS.movedirs,
                     thumbsize=ARGS.thumbsize)
 
 
-@route('/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
+@bottle.route('/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
 def read_images(image_type, image_name_ext):
     cType = {"png": "images/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
              "gif": "image/gif", "ico": "image/x-icon"}
     image_name, image_ext = re.search('(.*)\.(png|jpg|gif|ico)', image_name_ext).groups()
-    response.content_type = cType[image_ext]
+    bottle.response.content_type = cType[image_ext]
     if image_name_ext in os.listdir(ARGS.imagedir):  # Security
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
         if image_type == 't':
@@ -56,13 +54,13 @@ def read_images(image_type, image_name_ext):
         return fp.read()
 
 
-@post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
+@bottle.post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
 def move(image_name_ext):
     print(image_name_ext)
     if not ARGS.movedirs:
-        abort(401)
+        bottle.abort(401)
     if image_name_ext in os.listdir(ARGS.imagedir):  # Security
-        movedir = ARGS.movedirs[int(request.forms.get('index'))]
+        movedir = ARGS.movedirs[int(bottle.request.forms.get('index'))]
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
         try:
             os.makedirs(movedir)
@@ -74,7 +72,7 @@ def move(image_name_ext):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Server a folder of images")
     # Webpy port
-    parser.add_argument('--port', type=str, help='run webpy on this port',
+    parser.add_argument('--port', type=str, help='bottle.run webpy on this port',
                         default='8080')
     # Thumbnail size
     parser.add_argument('--thumbsize', type=int, help='maximum size in both directions (aspect ratio preserved) (default 50)',
@@ -103,4 +101,4 @@ if __name__ == "__main__":
                         help='randomly sample images in the folder each time')
     # These args are used as global variables
     ARGS = parser.parse_args()
-    run(host='0.0.0.0', port=ARGS.port, server='gevent', reloader=True)
+    bottle.run(host='0.0.0.0', port=ARGS.port, server='gevent', reloader=True)

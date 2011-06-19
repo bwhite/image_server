@@ -1,4 +1,3 @@
-<!-- images, prev_page_num, next_page_num, move_dir, -->
   <html>
   <head>
     <link rel="stylesheet" type="text/css" href="http://craigsworks.com/projects/qtip2/packages/latest/jquery.qtip.css" /> 

@@ -99,8 +99,8 @@ if __name__ == "__main__":
     parser.add_argument('--port', type=str, help='Run on this port (default 8080)',
                         default='8080')
     # Thumbnail size
-    parser.add_argument('--thumbsize', type=int, help='maximum size in both directions (aspect ratio preserved) (default 50)',
-                        default=50)
+    parser.add_argument('--thumbsize', type=int, help='maximum size in both directions (aspect ratio preserved) (default 100)',
+                        default=100)
 
     # Image input directory
     parser.add_argument('--imagedir', type=str, help='folder of images, \

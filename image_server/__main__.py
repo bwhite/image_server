@@ -77,7 +77,7 @@ if __name__ == "__main__":
     parser.add_argument('--port', type=str, help='run webpy on this port',
                         default='8080')
     # Thumbnail size
-    parser.add_argument('--thumbsize', type=int, help='maximum size in both directions (aspect ratio preserved)',
+    parser.add_argument('--thumbsize', type=int, help='maximum size in both directions (aspect ratio preserved) (default 50)',
                         default=50)
 
     # Image input directory

@@ -130,5 +130,5 @@ if __name__ == "__main__":
     ARGS = parser.parse_args()
     THUMB_CACHE = {}
     if os.environ.get('BOTTLE_CHILD'):  # Assumes reloader=True
-        gevent.Greenlet(fill_cache).start_later(1)
+        gevent.Greenlet(fill_cache).start_later(1)  # Give the server a second to start
     bottle.run(host='0.0.0.0', port=ARGS.port, server='gevent', reloader=True)

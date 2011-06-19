@@ -10,12 +10,12 @@
   <span style="margin:10px;font-size:150%"><a href="/p/{{next_page_num}}">Next</a></span>
   <div>
     %for x in images:
-        <div style="float:left;max-width:100px;text-align:center;margin:15px 2px">
+        <div style="float:left;max-width:100px;text-align:center;margin:15px 1px">
           <div>
             <a title="{{x}}">info1</a>
           </div>
 	  <div>
-	    <a href="/image/i/{{x}}" class="top_up" toptions="effect=hide,overlayClose=0" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
+	    <a href="/image/i/{{x}}" title="{{x}}" class="top_up" toptions="effect=hide" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
 	  </div>
 	  <div>
 	    %if movedir is not None:

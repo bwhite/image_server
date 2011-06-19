@@ -2,7 +2,7 @@ from gevent import monkey
 monkey.patch_all()
 import bottle
 bottle.debug(True)
-from bottle import route, run, response, template, post, abort
+from bottle import route, run, response, template, post, abort, request
 import os
 import argparse
 import random
@@ -62,12 +62,13 @@ def move(image_name_ext):
     if not ARGS.movedirs:
         abort(401)
     if image_name_ext in os.listdir(ARGS.imagedir):  # Security
+        movedir = ARGS.movedirs[int(request.forms.get('index'))]
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
         try:
-            os.makedirs(ARGS.movedir)
+            os.makedirs(movedir)
         except OSError:
             pass
-        shutil.move(image_path, '%s/%s' % (ARGS.movedir, image_name_ext))
+        shutil.move(image_path, '%s/%s' % (movedir, image_name_ext))
 
 
 if __name__ == "__main__":

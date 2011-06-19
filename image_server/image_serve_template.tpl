@@ -30,7 +30,7 @@
 	  <div>
 	        <input img="{{x}}" 
 		       class="move_button" style="width:{{thumbsize}};height:25;" type="submit"
-		       value="{{i}}">
+		       index="{{i}}" value="{{i}}">
 	  </div>
           %end
          </div>
@@ -54,6 +54,7 @@ $('a[title]').qtip();
 	$.ajax({
 	    url: url,
 	    type: "POST",
+            data: {"index": $(td).attr('index')},
 	    success: function(data) { 
                 var outer = $(td).closest('div').parent()
                 var width = outer.width()

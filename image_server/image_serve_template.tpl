@@ -13,7 +13,7 @@
   <div>
     Legend:
     %for i, movedir in zip(range(len(movedirs)), movedirs):
-    <span style="margin:5px;font-size:110%">[mv {{i}}]: {{movedir}}</span>
+    <span style="margin:5px;font-size:110%">[{{i}}]: {{movedir}}</span>
     %end
   </div>
   %end
@@ -21,16 +21,16 @@
     %for x in images:
         <div style="float:left;max-width:{{thumbsize}}px;text-align:center;margin:15px 1px">
           <div>
-            <a title="{{x}}">info1</a>
+            <a title="{{x}}">info</a>
           </div>
 	  <div>
-	    <a href="/image/i/{{x}}" title="{{x}}" class="top_up" toptions="effect=hide" target="_blank"><img src="/image/t/{{x}}" style="height:{{thumbsize}}px;max-width:{{thumbsize}}px"/></a>
+	    <a href="/image/i/{{x}}" class="top_up" toptions="effect=hide" target="_blank"><img src="/image/t/{{x}}" style="height:{{thumbsize}}px;max-width:{{thumbsize}}px"/></a>
 	  </div>
 	  %for i, movedir in zip(range(len(movedirs)), movedirs):
 	  <div>
 	        <input img="{{x}}" 
-		       class="move_button" style="width:{{thumbsize}};height:30;" type="submit"
-		       value="mv {{i}}">
+		       class="move_button" style="width:{{thumbsize}};height:25;" type="submit"
+		       value="{{i}}">
 	  </div>
           %end
          </div>

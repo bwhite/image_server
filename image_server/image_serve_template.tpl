@@ -24,7 +24,7 @@
             <a title="{{x}}">info</a>
           </div>
 	  <div>
-	    <a href="/image/i/{{x}}" class="top_up" toptions="effect=hide" target="_blank"><img src="/image/t/{{x}}" style="height:{{thumbsize}}px;max-width:{{thumbsize}}px"/></a>
+	    <a href="/image/i/{{x}}" class="top_up" toptions="effect=hide, modal=1" target="_blank"><img src="/image/t/{{x}}" style="height:{{thumbsize}}px;max-width:{{thumbsize}}px"/></a>
 	  </div>
 	  %for i, movedir in zip(range(len(movedirs)), movedirs):
 	  <div>

@@ -8,22 +8,31 @@
   <body>
   <span style="margin:10px;font-size:150%"><a href="/p/{{prev_page_num}}">Prev</a></span>
   <span style="margin:10px;font-size:150%"><a href="/p/{{next_page_num}}">Next</a></span>
+  <!-- legend for movedir -->
+  %if movedirs:
+  <div>
+    Legend:
+    %for i, movedir in zip(range(len(movedirs)), movedirs):
+    <span style="margin:5px;font-size:110%">[mv {{i}}]: {{movedir}}</span>
+    %end
+  </div>
+  %end
   <div>
     %for x in images:
-        <div style="float:left;max-width:100px;text-align:center;margin:15px 1px">
+        <div style="float:left;max-width:{{thumbsize}}px;text-align:center;margin:15px 1px">
           <div>
             <a title="{{x}}">info1</a>
           </div>
 	  <div>
-	    <a href="/image/i/{{x}}" title="{{x}}" class="top_up" toptions="effect=hide" target="_blank"><img src="/image/t/{{x}}" style="height:50;max-width:100"/></a>
+	    <a href="/image/i/{{x}}" title="{{x}}" class="top_up" toptions="effect=hide" target="_blank"><img src="/image/t/{{x}}" style="height:{{thumbsize}}px;max-width:{{thumbsize}}px"/></a>
 	  </div>
+	  %for i, movedir in zip(range(len(movedirs)), movedirs):
 	  <div>
-	    %if movedir is not None:
 	        <input img="{{x}}" 
-		       class="move_button" style="height:30;" type="submit" 
-		       value="Move">
-            %end
+		       class="move_button" style="width:{{thumbsize}};height:30;" type="submit"
+		       value="mv {{i}}">
 	  </div>
+          %end
          </div>
     %end
   </div>

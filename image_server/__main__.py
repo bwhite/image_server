@@ -30,7 +30,8 @@ def main(page=''):
     response.content_type = 'text/html'
     templ = os.path.join(os.path.dirname(__file__), 'image_serve_template')
     return template(templ, images=local_images,
-                    prev_page_num=page - 1, next_page_num=page + 1, movedir=ARGS.movedir)
+                    prev_page_num=page - 1, next_page_num=page + 1, movedirs=ARGS.movedirs,
+                    thumbsize=ARGS.thumbsize)
 
 
 @route('/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
@@ -44,8 +45,9 @@ def read_images(image_type, image_name_ext):
         if image_type == 't':
             img = Image.open(image_path)
             width, height = img.size
-            width = int(width * 50 / float(height))
-            img = img.resize((width, 50))
+            width = int(width * ARGS.thumbsize / float(height))
+            img = img.resize((width, ARGS.thumbsize))
+            print img.size
             fp = StringIO.StringIO()
             img.save(fp, image_ext if image_ext != 'jpg' else 'jpeg')
             fp.seek(0)
@@ -57,7 +59,7 @@ def read_images(image_type, image_name_ext):
 @post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
 def move(image_name_ext):
     print(image_name_ext)
-    if ARGS.movedir is None:
+    if not ARGS.movedirs:
         abort(401)
     if image_name_ext in os.listdir(ARGS.imagedir):  # Security
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
@@ -73,14 +75,20 @@ if __name__ == "__main__":
     # Webpy port
     parser.add_argument('--port', type=str, help='run webpy on this port',
                         default='8080')
+    # Thumbnail size
+    parser.add_argument('--thumbsize', type=int, help='maximum size in both directions (aspect ratio preserved)',
+                        default=50)
+
     # Image input directory
     parser.add_argument('--imagedir', type=str, help='folder of images, \
                         default \'.\'',
                         default='./')
+
     # Move images to this directory
-    parser.add_argument('--movedir', type=str,
-                        help='click to move images to this directory',
-                        default=None)
+    parser.add_argument('--movedirs', type=str,
+                        help='click to move images to these (1+) directories',
+                        action='append', default=[])
+
     # Limit number of images to display
     parser.add_argument('--limit', type=int,
                         help='show at most LIMIT images (default 200)',

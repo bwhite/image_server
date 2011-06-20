@@ -72,18 +72,25 @@ def read_images(image_type, image_name_ext):
         return out
 
 
-@bottle.post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
-def move(image_name_ext):
-    if not ARGS.movedirs:
-        bottle.abort(401)
+def move_task(image_name_ext, index):
     if image_name_ext in os.listdir(ARGS.imagedir):  # Security
-        movedir = ARGS.movedirs[int(bottle.request.forms.get('index'))]
+        movedir = ARGS.movedirs[index]
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
         try:
             os.makedirs(movedir)
         except OSError:
             pass
-        shutil.move(image_path, '%s/%s' % (movedir, image_name_ext))
+        try:
+            shutil.move(image_path, '%s/%s' % (movedir, image_name_ext))
+        except IOError:
+            pass
+
+
+@bottle.post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
+def move(image_name_ext):
+    if not ARGS.movedirs:
+        bottle.abort(401)
+    gevent.Greenlet(move_task, image_name_ext, int(bottle.request.forms.get('index'))).start()
 
 
 def fill_cache():

@@ -68,9 +68,11 @@ def main(page=''):
     local_images = PAGE_IMAGES[page]
     bottle.response.content_type = 'text/html'
     templ = os.path.join(os.path.dirname(__file__), 'image_serve_template')
+    prev_page_num = page - 1 if page - 1 >= 0 else None
+    next_page_num = page + 1 if page + 1 < len(PAGE_IMAGES) else None
     return bottle.template(templ, images=local_images,
-                           prev_page_num=max(page - 1, 0),
-                           next_page_num=min(page + 1, len(PAGE_IMAGES) - 1),
+                           prev_page_num=prev_page_num,
+                           next_page_num=next_page_num,
                            movedirs=ARGS.movedirs,
                            thumbsize=ARGS.thumbsize)
 

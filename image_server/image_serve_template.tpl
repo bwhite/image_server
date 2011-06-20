@@ -5,8 +5,12 @@
     <script type="text/javascript" src="http://craigsworks.com/projects/qtip2/packages/latest/jquery.qtip.js"></script> 
   </head>
   <body>
-  <span style="margin:10px;font-size:150%"><a href="/p/{{prev_page_num}}">Prev</a></span>
-  <span style="margin:10px;font-size:150%"><a href="/p/{{next_page_num}}">Next</a></span>
+  %if prev_page_num is not None:
+      <span style="margin:10px;font-size:150%"><a href="/p/{{prev_page_num}}">Prev</a></span>
+  %end
+  %if next_page_num is not None:
+      <span style="margin:10px;font-size:150%"><a href="/p/{{next_page_num}}">Next</a></span>
+  %end
   <!-- legend for movedir -->
   %if movedirs:
   <div>

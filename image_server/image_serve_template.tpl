@@ -55,10 +55,7 @@ $('a[title]').qtip();
 	    type: "POST",
             data: {"index": $(td).attr('index')},
 	    success: function(data) { 
-                var outer = $(td).closest('div').parent()
-                var width = outer.width()
-                outer.empty()
-                outer.width(width)
+            $(td).closest('div').parent().hide()
 	    },
 	    error: function (data) {
 		console.error(data.responseText);

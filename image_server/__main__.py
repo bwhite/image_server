@@ -9,18 +9,45 @@ import re
 import Image
 import cStringIO as StringIO
 import shutil
+import math
 
 
 def find_local_images():
     image_extensions = set(['jpg', 'png', 'jpeg', 'gif', 'ico'])
     extension = lambda x: x.split('.')[-1] if '.' in x else ''
-    return [x for x in sorted(os.listdir(ARGS.imagedir), reverse=ARGS.reverse)
-            if extension(x) in image_extensions]
+    images = [x for x in sorted(os.listdir(ARGS.imagedir), reverse=ARGS.reverse)
+              if extension(x) in image_extensions]
+    if ARGS.random:
+        random.shuffle(images)
+    return images
+
+
+def find_page_images():
+    images = find_local_images()
+    limit = ARGS.limit
+    num_pages = int(math.ceil(len(images) / float(limit)))
+    page_images = [images[p * limit:(p + 1) * limit] for p in range(num_pages)]
+    local_images = {}
+    # We need a mapping from images to page numbers to properly clean up when we move
+    for num, p in enumerate(page_images):
+        for i in p:
+            local_images[i] = num
+    return page_images, local_images
 
 
 def make_thumbnail(image_path):
-    img = Image.open(image_path)
-    image_ext = re.search('.*\.(png|jpg|gif|ico)', image_path).group(1)
+    try:
+        img = Image.open(image_path)
+    except IOError:
+        if ARGS.baddir:
+            gevent.Greenlet(move_task, os.path.basename(image_path), ARGS.baddir).start()
+            raise IOError('Cannot read [%s].  Moving to [%s]' % (image_path, ARGS.baddir))
+        else:
+            raise IOError('Cannot read [%s]' % image_path)
+    try:
+        image_ext = re.search('.*\.(png|jpg|gif|ico|jpeg)', image_path).group(1)
+    except AttributeError:
+        raise ValueError('Unknown extension on [%s]' % image_path)
     width, height = img.size
     width = int(width * ARGS.thumbsize / float(height))
     img = img.resize((width, ARGS.thumbsize))
@@ -38,17 +65,14 @@ def main(page=''):
     if not page:
         page = '0'
     page = int(page)
-    local_images = find_local_images()
-    if ARGS.random:
-        local_images = random.sample(local_images, min(ARGS.limit,
-                                                       len(local_images)))
-    else:
-        local_images = local_images[ARGS.limit * page:ARGS.limit * (page + 1)]
+    local_images = PAGE_IMAGES[page]
     bottle.response.content_type = 'text/html'
     templ = os.path.join(os.path.dirname(__file__), 'image_serve_template')
     return bottle.template(templ, images=local_images,
-                    prev_page_num=page - 1, next_page_num=page + 1, movedirs=ARGS.movedirs,
-                    thumbsize=ARGS.thumbsize)
+                           prev_page_num=max(page - 1, 0),
+                           next_page_num=min(page + 1, len(PAGE_IMAGES) - 1),
+                           movedirs=ARGS.movedirs,
+                           thumbsize=ARGS.thumbsize)
 
 
 @bottle.route('/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
@@ -57,7 +81,7 @@ def read_images(image_type, image_name_ext):
              "gif": "image/gif", "ico": "image/x-icon"}
     image_ext = re.search('.*\.(png|jpg|gif|ico)', image_name_ext).group(1)
     bottle.response.content_type = cType[image_ext]
-    if image_name_ext in os.listdir(ARGS.imagedir):  # Security
+    if image_name_ext in LOCAL_IMAGES:  # Security
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
         if image_type == 't':
             if image_name_ext in THUMB_CACHE and os.path.exists(image_path):
@@ -72,9 +96,8 @@ def read_images(image_type, image_name_ext):
         return out
 
 
-def move_task(image_name_ext, index):
-    if image_name_ext in os.listdir(ARGS.imagedir):  # Security
-        movedir = ARGS.movedirs[index]
+def move_task(image_name_ext, movedir):
+    if image_name_ext in LOCAL_IMAGES:  # Security
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
         try:
             os.makedirs(movedir)
@@ -84,20 +107,26 @@ def move_task(image_name_ext, index):
             shutil.move(image_path, '%s/%s' % (movedir, image_name_ext))
         except IOError:
             pass
+        PAGE_IMAGES[LOCAL_IMAGES[image_name_ext]].remove(image_name_ext)
+        del LOCAL_IMAGES[image_name_ext]
 
 
 @bottle.post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
 def move(image_name_ext):
     if not ARGS.movedirs:
         bottle.abort(401)
-    gevent.Greenlet(move_task, image_name_ext, int(bottle.request.forms.get('index'))).start()
+    gevent.Greenlet(move_task, image_name_ext, ARGS.movedirs[int(bottle.request.forms.get('index'))]).start()
 
 
 def fill_cache():
     for image_name_ext in find_local_images():
         gevent.sleep()
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
-        THUMB_CACHE[image_name_ext] = make_thumbnail(image_path)
+        try:
+            THUMB_CACHE[image_name_ext] = make_thumbnail(image_path)
+        except IOError, e:
+            print(e)
+            continue
     
 
 if __name__ == "__main__":
@@ -119,6 +148,11 @@ if __name__ == "__main__":
                         help='click to move images to these (1+) directories',
                         action='append', default=[])
 
+    # Move images to this directory
+    parser.add_argument('--baddir', type=str,
+                        help='All unreadable images are moved here (off by default)',
+                        default='')
+
     # Limit number of images to display
     parser.add_argument('--limit', type=int,
                         help='show at most LIMIT images (default 200)',
@@ -136,6 +170,7 @@ if __name__ == "__main__":
     # These args are used as global variables
     ARGS = parser.parse_args()
     THUMB_CACHE = {}
+    PAGE_IMAGES, LOCAL_IMAGES = find_page_images()
     if os.environ.get('BOTTLE_CHILD'):  # Assumes reloader=True
         gevent.Greenlet(fill_cache).start_later(1)  # Give the server a second to start
     bottle.run(host='0.0.0.0', port=ARGS.port, server='gevent', reloader=True)

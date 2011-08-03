@@ -11,6 +11,7 @@
   %if next_page_num is not None:
       <span style="margin:10px;font-size:150%"><a href="/p/{{next_page_num}}">Next</a></span>
   %end
+  <span style="margin:10px;font-size:150%"><a href="/refresh/">Update</a></span>
   <!-- legend for movedir -->
   %if movedirs:
   <div>

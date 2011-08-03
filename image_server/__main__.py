@@ -98,6 +98,13 @@ def read_images(image_type, image_name_ext):
         return out
 
 
+@bottle.route('/refresh/')
+def refresh():
+    global PAGE_IMAGES, LOCAL_IMAGES
+    PAGE_IMAGES, LOCAL_IMAGES = find_page_images()
+    bottle.redirect('/')
+
+
 def move_task(image_name_ext, movedir):
     if image_name_ext in LOCAL_IMAGES:  # Security
         image_path = os.path.join(ARGS.imagedir, image_name_ext)

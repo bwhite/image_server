@@ -10,10 +10,11 @@ import Image
 import cStringIO as StringIO
 import shutil
 import math
+bottle.debug(True)
 
 
 def find_local_images():
-    image_extensions = set(['jpg', 'png', 'jpeg', 'gif', 'ico'])
+    image_extensions = set(['jpg', 'png', 'jpeg', 'gif', 'ico', 'pgm', 'ppm'])
     extension = lambda x: x.split('.')[-1] if '.' in x else ''
     images = [x for x in sorted(os.listdir(ARGS.imagedir), reverse=ARGS.reverse)
               if extension(x) in image_extensions]
@@ -45,7 +46,7 @@ def make_thumbnail(image_path):
         else:
             raise IOError('Cannot read [%s]' % image_path)
     try:
-        image_ext = re.search('.*\.(png|jpg|gif|ico|jpeg)', image_path).group(1)
+        image_ext = re.search('.*\.(png|jpg|gif|ico|jpeg|ppm|pgm)', image_path).group(1)
     except AttributeError:
         raise ValueError('Unknown extension on [%s]' % image_path)
     width, height = img.size
@@ -77,11 +78,12 @@ def main(page=''):
                            thumbsize=ARGS.thumbsize)
 
 
-@bottle.route('/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
+@bottle.route('/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg|ppm|pgm)#')
 def read_images(image_type, image_name_ext):
     cType = {"png": "images/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
-             "gif": "image/gif", "ico": "image/x-icon"}
-    image_ext = re.search('.*\.(png|jpg|gif|ico)', image_name_ext).group(1)
+             "gif": "image/gif", "ico": "image/x-icon", "pgm": "image/x-pgm",
+             "ppm": "image/x-ppm"}
+    image_ext = re.search('.*\.(png|jpg|gif|ico|jpeg|ppm|pgm)', image_name_ext).group(1)
     bottle.response.content_type = cType[image_ext]
     if image_name_ext in LOCAL_IMAGES:  # Security
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
@@ -120,7 +122,7 @@ def move_task(image_name_ext, movedir):
         del LOCAL_IMAGES[image_name_ext]
 
 
-@bottle.post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg)#')
+@bottle.post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg|ppm|pgm)#')
 def move(image_name_ext):
     if not ARGS.movedirs:
         bottle.abort(401)

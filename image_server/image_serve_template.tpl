@@ -1,5 +1,6 @@
   <html>
   <head>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://craigsworks.com/projects/qtip2/packages/latest/jquery.qtip.css" /> 
     <script type="text/javascript" src="http://gettopup.com/releases/latest/top_up-min.js"></script>
     <script type="text/javascript" src="http://craigsworks.com/projects/qtip2/packages/latest/jquery.qtip.js"></script> 

@@ -92,7 +92,10 @@ def read_images(image_type, image_name_ext):
                 out = THUMB_CACHE[image_name_ext]
             else:
                 if len(THUMB_CACHE) >= ARGS.thumbcachesize:
-                    del THUMB_CACHE[random.choice(THUMB_CACHE)]
+                    try:
+                        del THUMB_CACHE[random.choice(THUMB_CACHE)]
+                    except KeyError:
+                        pass
                 out = THUMB_CACHE[image_name_ext] = make_thumbnail(image_path)
         else:
             fp = open(image_path)

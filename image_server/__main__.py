@@ -10,6 +10,7 @@ import Image
 import cStringIO as StringIO
 import shutil
 import math
+from static_server.auth import verify
 bottle.debug(True)
 
 
@@ -62,6 +63,7 @@ def make_thumbnail(image_path):
 
 @bottle.route('/')
 @bottle.route('/p/:page#[0-9]*#')
+@verify(lambda : ARGS.noauth)
 def main(page=''):
     if not page:
         page = '0'
@@ -79,6 +81,7 @@ def main(page=''):
 
 
 @bottle.route('/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg|ppm|pgm)#')
+@verify(lambda : ARGS.noauth)
 def read_images(image_type, image_name_ext):
     cType = {"png": "images/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
              "gif": "image/gif", "ico": "image/x-icon", "pgm": "image/x-pgm",
@@ -104,6 +107,7 @@ def read_images(image_type, image_name_ext):
 
 
 @bottle.route('/refresh/')
+@verify(lambda : ARGS.noauth)
 def refresh():
     global PAGE_IMAGES, LOCAL_IMAGES
     PAGE_IMAGES, LOCAL_IMAGES = find_page_images()
@@ -181,10 +185,10 @@ if __name__ == "__main__":
     # Number of thumbnails to cache
     parser.add_argument('--thumbcachesize', default=1000,
                         help='Number of thumbnails to cache (default 1000)')
+    parser.add_argument('--noauth', action='store_false')
     # These args are used as global variables
     ARGS = parser.parse_args()
     THUMB_CACHE = {}
     PAGE_IMAGES, LOCAL_IMAGES = find_page_images()
-    if os.environ.get('BOTTLE_CHILD'):  # Assumes reloader=True
-        gevent.Greenlet(fill_cache).start_later(1)  # Give the server a second to start
-    bottle.run(host='0.0.0.0', port=ARGS.port, server='gevent', reloader=True)
+    gevent.Greenlet(fill_cache).start_later(1)  # Give the server a second to start
+    bottle.run(host='0.0.0.0', port=ARGS.port, server='gevent')

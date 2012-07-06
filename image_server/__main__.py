@@ -10,6 +10,7 @@ import Image
 import cStringIO as StringIO
 import shutil
 import math
+import urllib
 from static_server.auth import verify
 bottle.debug(True)
 
@@ -88,6 +89,7 @@ def read_images(image_type, image_name_ext):
              "ppm": "image/x-ppm"}
     image_ext = re.search('.*\.(png|jpg|gif|ico|jpeg|ppm|pgm)', image_name_ext).group(1)
     bottle.response.content_type = cType[image_ext]
+    image_name_ext = urllib.unquote(image_name_ext).decode('utf8')
     if image_name_ext in LOCAL_IMAGES:  # Security
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
         if image_type == 't':

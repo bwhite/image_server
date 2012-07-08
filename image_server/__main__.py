@@ -78,6 +78,7 @@ def main(page=''):
                            prev_page_num=prev_page_num,
                            next_page_num=next_page_num,
                            movedirs=ARGS.movedirs,
+                           query_string=bottle.request.query_string,
                            thumbsize=ARGS.thumbsize)
 
 
@@ -87,9 +88,10 @@ def read_images(image_type, image_name_ext):
     cType = {"png": "images/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
              "gif": "image/gif", "ico": "image/x-icon", "pgm": "image/x-pgm",
              "ppm": "image/x-ppm"}
+    image_name_ext = urllib.unquote(image_name_ext).decode('utf8')
+    print(image_name_ext)
     image_ext = re.search('.*\.(png|jpg|gif|ico|jpeg|ppm|pgm)', image_name_ext).group(1)
     bottle.response.content_type = cType[image_ext]
-    image_name_ext = urllib.unquote(image_name_ext).decode('utf8')
     if image_name_ext in LOCAL_IMAGES:  # Security
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
         if image_type == 't':
@@ -132,6 +134,7 @@ def move_task(image_name_ext, movedir):
 
 
 @bottle.post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg|ppm|pgm)#')
+@verify(lambda : ARGS.noauth)
 def move(image_name_ext):
     if not ARGS.movedirs:
         bottle.abort(401)
@@ -178,9 +181,8 @@ if __name__ == "__main__":
                         help='show at most LIMIT images (default 200)',
                         default=200)
     # Sort order
-    parser.add_argument('--reverse', type=bool,
-                        help='Reverse the sort',
-                        default=False)
+    parser.add_argument('--reverse', action='store_true',
+                        help='Reverse the sort')
     # Randomize each time
     parser.add_argument('--random', action='store_true',
                         help='randomly sample images in the folder each time')

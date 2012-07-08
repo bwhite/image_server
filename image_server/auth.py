@@ -4,7 +4,6 @@ import random
 
 
 AUTH_KEY = None
-CLIENTS = set()
 
 
 def _make_key(l=16):
@@ -29,17 +28,10 @@ def verify(enabled):
             try:
                 auth = bottle.request.query['auth']
             except KeyError:
-                pass
-            else:
-                if auth == AUTH_KEY:
-                    _make_key()
-                    CLIENTS.add(bottle.request.remote_addr)
-                    print('Adding client[%s]' % bottle.request.remote_addr)
-                else:
-                    _make_key()
-                    bottle.abort(401)
-            if bottle.request.remote_addr not in CLIENTS:
                 bottle.abort(401)
+            else:
+                if auth != AUTH_KEY:
+                    bottle.abort(401)
             return func(*args, **kw)
         if AUTH_KEY is None:
             _make_key()

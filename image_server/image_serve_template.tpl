@@ -29,7 +29,7 @@
             <a title="{{x}}">info</a>
           </div>
 	  <div>
-	    <a href="/image/i/{{x}}" class="top_up" toptions="effect=hide, modal=1" target="_blank"><img src="/image/t/{{x}}" style="height:{{thumbsize}}px;max-width:{{thumbsize}}px"/></a>
+	    <a href="/image/i/{{x}}?{{query_string}}" class="top_up" toptions="effect=hide, modal=1" target="_blank"><img src="/image/t/{{x}}?{{query_string}}" style="height:{{thumbsize}}px;max-width:{{thumbsize}}px"/></a>
 	  </div>
 	  %for i, movedir in zip(range(len(movedirs)), movedirs):
 	  <div>
@@ -55,7 +55,7 @@ $('a[title]').qtip();
     // Use jQuery to handle moving images
     $("input.move_button").click(function () {
 	var td = this
-	var url = '/move/' + $(this).attr('IMG');
+	var url = '/move/' + $(this).attr('IMG') + '?{{query_string}}';
 	$.ajax({
 	    url: url,
 	    type: "POST",

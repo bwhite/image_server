@@ -11,7 +11,7 @@ import cStringIO as StringIO
 import shutil
 import math
 import urllib
-from static_server.auth import verify
+from image_server.auth import verify
 bottle.debug(True)
 
 

@@ -7,12 +7,12 @@
   </head>
   <body>
   %if prev_page_num is not None:
-      <span style="margin:10px;font-size:150%"><a href="/p/{{prev_page_num}}">Prev</a></span>
+      <span style="margin:10px;font-size:150%"><a href="/{{auth_key}}/p/{{prev_page_num}}">Prev</a></span>
   %end
   %if next_page_num is not None:
-      <span style="margin:10px;font-size:150%"><a href="/p/{{next_page_num}}">Next</a></span>
+      <span style="margin:10px;font-size:150%"><a href="/{{auth_key}}/p/{{next_page_num}}">Next</a></span>
   %end
-  <span style="margin:10px;font-size:150%"><a href="/refresh/">Update</a></span>
+  <span style="margin:10px;font-size:150%"><a href="/{{auth_key}}/refresh/">Update</a></span>
   <!-- legend for movedir -->
   %if movedirs:
   <div>

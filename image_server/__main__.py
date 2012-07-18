@@ -62,10 +62,10 @@ def make_thumbnail(image_path):
     return fp.read()
 
 
-@bottle.route('/')
-@bottle.route('/p/:page#[0-9]*#')
-@verify(lambda : ARGS.noauth)
-def main(page=''):
+@bottle.route('/:auth_key#[a-zA-Z0-9\_\-]+#/')
+@bottle.route('/:auth_key#[a-zA-Z0-9\_\-]+#/p/:page#[0-9]*#')
+@verify
+def main(auth_key, page=''):
     if not page:
         page = '0'
     page = int(page)
@@ -78,13 +78,13 @@ def main(page=''):
                            prev_page_num=prev_page_num,
                            next_page_num=next_page_num,
                            movedirs=ARGS.movedirs,
-                           query_string=bottle.request.query_string,
+                           auth_key=auth_key,
                            thumbsize=ARGS.thumbsize)
 
 
-@bottle.route('/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg|ppm|pgm)#')
-@verify(lambda : ARGS.noauth)
-def read_images(image_type, image_name_ext):
+@bottle.route('/:auth_key#[a-zA-Z0-9\_\-]+#/image/:image_type#(i|t)#/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg|ppm|pgm)#')
+@verify
+def read_images(auth_key, image_type, image_name_ext):
     cType = {"png": "images/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
              "gif": "image/gif", "ico": "image/x-icon", "pgm": "image/x-pgm",
              "ppm": "image/x-ppm"}
@@ -110,9 +110,9 @@ def read_images(image_type, image_name_ext):
         return out
 
 
-@bottle.route('/refresh/')
-@verify(lambda : ARGS.noauth)
-def refresh():
+@bottle.route('/:auth_key#[a-zA-Z0-9\_\-]+#/refresh/')
+@verify
+def refresh(auth_key):
     global PAGE_IMAGES, LOCAL_IMAGES
     PAGE_IMAGES, LOCAL_IMAGES = find_page_images()
     bottle.redirect('/')
@@ -133,9 +133,9 @@ def move_task(image_name_ext, movedir):
         del LOCAL_IMAGES[image_name_ext]
 
 
-@bottle.post('/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg|ppm|pgm)#')
-@verify(lambda : ARGS.noauth)
-def move(image_name_ext):
+@bottle.post('/:auth_key#[a-zA-Z0-9\_\-]+#/move/:image_name_ext#(.*)\.(png|jpg|gif|ico|jpeg|ppm|pgm)#')
+@verify
+def move(auth_key, image_name_ext):
     if not ARGS.movedirs:
         bottle.abort(401)
     gevent.Greenlet(move_task, image_name_ext, ARGS.movedirs[int(bottle.request.forms.get('index'))]).start()

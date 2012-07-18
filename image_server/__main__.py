@@ -115,7 +115,7 @@ def read_images(auth_key, image_type, image_name_ext):
 def refresh(auth_key):
     global PAGE_IMAGES, LOCAL_IMAGES
     PAGE_IMAGES, LOCAL_IMAGES = find_page_images()
-    bottle.redirect('/')
+    bottle.redirect('/%s/' % auth_key)
 
 
 def move_task(image_name_ext, movedir):

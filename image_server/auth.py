@@ -16,7 +16,6 @@ def _make_key(l=16):
     if len(s) != l * 2:
         s = '0' * (2 * l - len(s)) + s
     AUTH_KEY = base64.urlsafe_b64encode(s.decode('hex')).rstrip('=')
-    print('AUTH_KEY: /%s/' % AUTH_KEY)
 
 
 def verify(func):
@@ -27,4 +26,5 @@ def verify(func):
         return func(*args, **kw)
     if AUTH_KEY is None:
         _make_key()
+    print('AUTH_KEY: /%s/' % AUTH_KEY)
     return inner

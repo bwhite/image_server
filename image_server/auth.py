@@ -1,9 +1,10 @@
 import bottle
 import base64
 import random
+import os
 
 
-AUTH_KEY = None
+AUTH_KEY = os.environ.get('AUTH_KEY')
 
 
 def _make_key(l=16):

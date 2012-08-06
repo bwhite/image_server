@@ -150,7 +150,7 @@ def fill_cache():
         except IOError, e:
             print(e)
             continue
-    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Serve a folder of images")
@@ -189,7 +189,6 @@ if __name__ == "__main__":
     # Number of thumbnails to cache
     parser.add_argument('--thumbcachesize', default=1000,
                         help='Number of thumbnails to cache (default 1000)')
-    parser.add_argument('--noauth', action='store_false')
     # These args are used as global variables
     ARGS = parser.parse_args()
     THUMB_CACHE = {}

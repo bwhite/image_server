@@ -55,7 +55,7 @@ $('a[title]').qtip();
     // Use jQuery to handle moving images
     $("input.move_button").click(function () {
 	var td = this
-	var url = '/' + {{auth_key}} + '/move/' + $(this).attr('IMG');
+	var url = '/{{auth_key}}/move/' + $(this).attr('IMG');
 	$.ajax({
 	    url: url,
 	    type: "POST",

@@ -23,6 +23,8 @@
   </div>
   %end
   <div>
+    %for group_name, images in group_images:
+    <div><h2>{{group_name}}</h2></div>
     %for x in images:
         <div style="float:left;max-width:{{thumbsize}}px;text-align:center;margin:15px 1px">
           <div>
@@ -39,6 +41,7 @@
 	  </div>
           %end
          </div>
+    %end
     %end
   </div>
   <script type="text/javascript">

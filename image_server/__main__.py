@@ -22,19 +22,29 @@ def find_local_images():
               if extension(x) in image_extensions]
     if ARGS.random:
         random.shuffle(images)
-    return images
+    images_grouped = {}
+    for image in images:
+        group_key = GROUP_RE.search(image).groups()
+        images_grouped.setdefault(group_key, []).append(image)
+    return sorted(images_grouped.items(), key=lambda x: x[0])
 
 
 def find_page_images():
     images = find_local_images()
     limit = ARGS.limit
-    num_pages = int(math.ceil(len(images) / float(limit)))
-    page_images = [images[p * limit:(p + 1) * limit] for p in range(num_pages)]
+    page_images = [[]]
+    num_cur_images = 0
+    for group_name, group_images in images:
+        if num_cur_images > limit:
+            page_images.append([])
+            num_cur_images = 0
+        page_images[-1].append((group_name, group_images))
     local_images = {}
     # We need a mapping from images to page numbers to properly clean up when we move
-    for num, p in enumerate(page_images):
-        for i in p:
-            local_images[i] = num
+    for page_num, gs in enumerate(page_images):
+        for group_num, (group_name, images) in gs:
+            for i in images:
+                local_images[i] = (page_num, group_num)
     return page_images, local_images
 
 
@@ -74,7 +84,7 @@ def main(auth_key, page=''):
     templ = os.path.join(os.path.dirname(__file__), 'image_serve_template')
     prev_page_num = page - 1 if page - 1 >= 0 else None
     next_page_num = page + 1 if page + 1 < len(PAGE_IMAGES) else None
-    return bottle.template(templ, images=local_images,
+    return bottle.template(templ, group_images=local_images,
                            prev_page_num=prev_page_num,
                            next_page_num=next_page_num,
                            movedirs=ARGS.movedirs,
@@ -129,7 +139,8 @@ def move_task(image_name_ext, movedir):
             shutil.move(image_path, '%s/%s' % (movedir, image_name_ext))
         except IOError:
             pass
-        PAGE_IMAGES[LOCAL_IMAGES[image_name_ext]].remove(image_name_ext)
+        page_num, group_num = LOCAL_IMAGES[image_name_ext]
+        PAGE_IMAGES[page_num][group_num].remove(image_name_ext)
         del LOCAL_IMAGES[image_name_ext]
 
 
@@ -142,7 +153,7 @@ def move(auth_key, image_name_ext):
 
 
 def fill_cache():
-    for image_name_ext in find_local_images():
+    for image_name_ext in sum([x for _, x in find_local_images()], []):
         gevent.sleep()
         image_path = os.path.join(ARGS.imagedir, image_name_ext)
         try:
@@ -176,6 +187,11 @@ if __name__ == "__main__":
                         help='All unreadable images are moved here (off by default)',
                         default='')
 
+    # Group 
+    parser.add_argument('--group',
+                        help='Partition images based on matching regex groups (default ".*")',
+                        default='.*')
+
     # Limit number of images to display
     parser.add_argument('--limit', type=int,
                         help='show at most LIMIT images (default 200)',
@@ -191,6 +207,7 @@ if __name__ == "__main__":
                         help='Number of thumbnails to cache (default 1000)')
     # These args are used as global variables
     ARGS = parser.parse_args()
+    GROUP_RE = re.compile(ARGS.group)
     THUMB_CACHE = {}
     PAGE_IMAGES, LOCAL_IMAGES = find_page_images()
     gevent.Greenlet(fill_cache).start_later(1)  # Give the server a second to start

@@ -42,7 +42,7 @@ def find_page_images():
     local_images = {}
     # We need a mapping from images to page numbers to properly clean up when we move
     for page_num, gs in enumerate(page_images):
-        for group_num, (group_name, images) in gs:
+        for group_num, (group_name, images) in enumerate(gs):
             for i in images:
                 local_images[i] = (page_num, group_num)
     return page_images, local_images

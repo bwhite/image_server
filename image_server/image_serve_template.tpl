@@ -24,9 +24,9 @@
   %end
   <div>
     %for group_name, images in group_images:
-    <div><h2>{{group_name}}</h2></div>
+    <div style="float:left;clear:left;"><h2>{{group_name}}</h2></div>
     %for x in images:
-        <div style="float:left;max-width:{{thumbsize}}px;text-align:center;margin:15px 1px">
+        <div style="clear:left;float:left;max-width:{{thumbsize}}px;text-align:center;margin:15px 1px">
           <div>
             <a title="{{x}}">info</a>
           </div>

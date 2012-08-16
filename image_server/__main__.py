@@ -39,6 +39,7 @@ def find_page_images():
             page_images.append([])
             num_cur_images = 0
         page_images[-1].append((group_name, group_images))
+        num_cur_images += len(group_images)
     local_images = {}
     # We need a mapping from images to page numbers to properly clean up when we move
     for page_num, gs in enumerate(page_images):

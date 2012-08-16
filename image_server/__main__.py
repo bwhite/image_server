@@ -24,7 +24,9 @@ def find_local_images():
         random.shuffle(images)
     images_grouped = {}
     for image in images:
-        group_key = ', '.join(GROUP_RE.search(image).groups())
+        re_out = GROUP_RE.search(image)
+        re_groups = re_out.groups() if re_out else []
+        group_key = ', '.join(re_groups)
         images_grouped.setdefault(group_key, []).append(image)
     return sorted(images_grouped.items(), key=lambda x: x[0])
 

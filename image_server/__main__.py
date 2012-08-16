@@ -35,11 +35,14 @@ def find_page_images():
     page_images = [[]]
     num_cur_images = 0
     for group_name, group_images in images:
-        if num_cur_images > limit:
-            page_images.append([])
-            num_cur_images = 0
-        page_images[-1].append((group_name, group_images))
-        num_cur_images += len(group_images)
+        while group_images:
+            if num_cur_images >= limit:
+                page_images.append([])
+                num_cur_images = 0
+            max_group = len(group_images) if ARGS.atomic_groups else limit - num_cur_images
+            page_images[-1].append((group_name, group_images[:max_group]))
+            num_cur_images += len(group_images[:max_group])
+            group_images = group_images[max_group:]
     local_images = {}
     # We need a mapping from images to page numbers to properly clean up when we move
     for page_num, gs in enumerate(page_images):
@@ -200,6 +203,8 @@ if __name__ == "__main__":
     # Sort order
     parser.add_argument('--reverse', action='store_true',
                         help='Reverse the sort')
+    parser.add_argument('--atomic_groups', action='store_true',
+                        help='Do not break groups, keep them together nomatter what the limit is')
     # Randomize each time
     parser.add_argument('--random', action='store_true',
                         help='randomly sample images in the folder each time')

@@ -6,7 +6,7 @@ import os
 import argparse
 import random
 import re
-import Image
+from PIL import Image
 import cStringIO as StringIO
 import shutil
 import math

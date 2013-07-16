@@ -6,10 +6,8 @@ import os
 import argparse
 import random
 import re
-from PIL import Image
-import cStringIO as StringIO
+import cv2
 import shutil
-import math
 import urllib
 from image_server.auth import verify
 bottle.debug(True)
@@ -56,26 +54,17 @@ def find_page_images():
 
 def make_thumbnail(image_path):
     try:
-        img = Image.open(image_path)
+        img = cv2.imread(image_path)
     except IOError:
         if ARGS.baddir:
             gevent.Greenlet(move_task, os.path.basename(image_path), ARGS.baddir).start()
             raise IOError('Cannot read [%s].  Moving to [%s]' % (image_path, ARGS.baddir))
         else:
             raise IOError('Cannot read [%s]' % image_path)
-    try:
-        image_ext = re.search('.*\.(png|jpg|gif|ico|jpeg|ppm|pgm)', image_path).group(1)
-    except AttributeError:
-        raise ValueError('Unknown extension on [%s]' % image_path)
-    width, height = img.size
+    height, width = img.shape[:2]
     width = int(width * ARGS.thumbsize / float(height))
-    img = img.resize((width, ARGS.thumbsize))
-    fp = StringIO.StringIO()
-    if img.mode in ('P', 'RGBA'):
-        img = img.convert('RGB')
-    img.save(fp, image_ext if image_ext != 'jpg' else 'jpeg')
-    fp.seek(0)
-    return fp.read()
+    img = cv2.resize(img, (width, ARGS.thumbsize))
+    return cv2.imencode('.jpeg', img)[1].tostring()
 
 
 @bottle.route('/:auth_key#[a-zA-Z0-9\_\-]+#/')
